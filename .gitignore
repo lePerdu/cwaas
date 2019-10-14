@@ -1,0 +1,13 @@
+# .gitignore
+
+# Python stuff
+.ipynb_checkpoints/
+__pycache__/
+venv/
+
+# Backups
+*~
+*.bak
+
+# MAC stuff
+.DS_Store
