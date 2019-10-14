@@ -50,7 +50,7 @@ def main():
     tf_v = TfidfVectorizer()
 
     # With the vectorizer trained, let's load some different estimators
-    clf = LogisticRegressionCV(cv=5, random_state=seed)
+    clf = LogisticRegressionCV(cv=5, random_state=seed, solver='saga')
 
     pipe = make_pipeline(tf_v, clf)
     pipe.fit(x_train, y_train)
