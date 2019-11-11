@@ -1,0 +1,57 @@
+@charset "utf-8";
+
+@import url("https://fonts.googleapis.com/css?family=Abril+Fatface|Oswald|UnifrakturMaguntia&display=swap");
+
+$family-sans-serif: "Oswald", sans-serif;
+$family-secondary: "Abril Fatface", serif;
+$family-logo: "UnifrakturMaguntia", cursive;
+$newspaper-white: #fbfbf8;
+$scheme-main: $newspaper-white;
+$background: $newspaper-white;
+$text: #040407;
+$box-radius: 0;
+
+#background-image {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background-image: url("/images/magazines-blurred.jpg");
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: auto;
+    background-attachment: fixed;
+}
+
+.hrule {
+    width: 100%;
+    height: 0;
+    border-bottom: 2px solid black;
+    margin: 1em 0;
+}
+
+.logo {
+    font-family: $family-logo;
+    // TODO This should be a bit bigger, but currently the burger icon is fixed
+    // size, so making this bigger makes it look weird.
+    font-size: 1.5em;
+}
+
+.font-secondary {
+    font-family: $family-secondary;
+}
+
+.faq-question {
+    padding: 0.5em 0;
+}
+
+@import "../node_modules/bulma/sass/utilities/_all.sass";
+@import "../node_modules/bulma/sass/base/_all.sass";
+@import "../node_modules/bulma/sass/form/_all.sass";
+@import "../node_modules/bulma/sass/elements/box.sass";
+@import "../node_modules/bulma/sass/elements/container.sass";
+@import "../node_modules/bulma/sass/layout/hero.sass";
+@import "../node_modules/bulma/sass/layout/section.sass";
+@import "../node_modules/bulma/sass/components/navbar.sass";
