@@ -11,7 +11,6 @@ const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 module.exports = merge(common.webpack, {
     mode: 'production',
     output: {
-        path: path.join(__dirname, 'dist'),
         filename: 'js/[name]-[hash].bundle.js',
     },
     plugins: [
