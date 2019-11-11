@@ -2,13 +2,14 @@ const path = require('path')
 
 const HTMLWebpackPlugin = require('html-webpack-plugin')
 
+const DIST = path.join(__dirname, 'dist')
 const EXCLUDES = [/elm-stuff/, /node_modules/]
 
 module.exports = {
     webpack: {
         entry: path.join(__dirname, 'src/index.js'),
         output: {
-            path: path.join(__dirname, 'dist'),
+            path: DIST,
         },
         plugins: [
             new HTMLWebpackPlugin({
@@ -46,5 +47,7 @@ module.exports = {
         },
     },
     EXCLUDES: EXCLUDES,
+    DIST: DIST,
     ASSETS: 'assets',
+    DOMAIN: 'clickworthiness.online',
 }
