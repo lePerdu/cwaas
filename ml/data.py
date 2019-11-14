@@ -4,8 +4,7 @@ import os
 
 import pandas as pd
 
-import clickbait
-import sarcasm
+from . import clickbait, sarcasm
 
 DATA_DIR = "./data"
 

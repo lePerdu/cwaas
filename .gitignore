@@ -4,8 +4,9 @@
 .ipynb_checkpoints/
 __pycache__/
 venv/
-*.pickle
-*.pickle.*
+
+# Trained models
+models/
 
 # Backups
 *~

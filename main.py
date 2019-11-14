@@ -11,8 +11,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.pipeline import make_pipeline
 
-from data import read_all_data
-import utils
+from ml.data import read_all_data
+import ml.utils as utils
 
 
 def main():
@@ -32,7 +32,7 @@ def main():
         print("Loading pickle...")
         print()
 
-        pipe = utils.unpickle_gzip("pipeline.pickle.gz")
+        pipe = utils.unpickle_gzip("models/pipeline.pickle.gz")
     else:
         print()
         print("Training...")
