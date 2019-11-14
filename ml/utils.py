@@ -1,5 +1,9 @@
 """Miscellaneous helper functions."""
 
+import pickle
+import pickletools
+import gzip
+
 from collections import Counter
 
 import pandas as pd
@@ -43,3 +47,14 @@ def plot_freq(headlines, n=40, title="Word Frequency"):
     plt.title(title)
     plt.xticks(rotation=-45)
     plt.bar(counts["word"], counts["count"])
+
+
+def pickle_gzip(obj, filename):
+    p = pickletools.optimize(pickle.dumps(obj))
+    with gzip.open(filename, 'wb') as f:
+        f.write(p)
+
+
+def unpickle_gzip(filename):
+    with gzip.open(filename) as f:
+        return pickle.load(f)

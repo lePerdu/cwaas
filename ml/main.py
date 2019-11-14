@@ -1,5 +1,6 @@
 """Basic command-line interface for development and testing."""
 
+import sys
 import os
 
 import pandas as pd
@@ -10,53 +11,61 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegressionCV
 from sklearn.pipeline import make_pipeline
 
-import clickbait
-import sarcasm
+from data import read_all_data
 import utils
-
-DATA_DIR = "./data"
-
-CLICKBAIT_DATA_FILE = os.path.join(DATA_DIR, "clickbait_data.txt")
-NON_CLICKBAIT_DATA_FILE = os.path.join(DATA_DIR, "non_clickbait_data.txt")
-
-SARCASM_DATA_FILE = os.path.join(DATA_DIR, "Sarcasm_Headlines_Dataset_v2.json")
 
 
 def main():
-    seed = 42
+    seed = 9001
 
-    clickbait_data = clickbait.read_clickbait_data(
-        CLICKBAIT_DATA_FILE, NON_CLICKBAIT_DATA_FILE
-    )
-
-    sarcasm_data = sarcasm.read_sarcasm_data(SARCASM_DATA_FILE)
-
-    # Concatenate both together
-    # is_sarcastic and is_clickbait are considered equivalent
-    combined_data = pd.DataFrame({
-        "headline": pd.concat(
-            (clickbait_data["headline"], sarcasm_data["headline"])),
-        "is_clickbait": pd.concat(
-            (clickbait_data["is_clickbait"], sarcasm_data["is_sarcastic"]))
-    })
+    combined_data = read_all_data()
 
     # Create train/test split of data
     x_train, x_test, y_train, y_test = train_test_split(
-        combined_data["headline"], combined_data["is_clickbait"]
+        combined_data["headline"],
+        combined_data["is_clickbait"],
+        random_state=seed
     )
 
-    # Instantiate TfidVectrorizer to translate text data to feature vectors
-    # such that they can be used as inputs for an estimator
-    tf_v = TfidfVectorizer()
+    if len(sys.argv) > 1:
+        print()
+        print("Loading pickle...")
+        print()
 
-    # With the vectorizer trained, let's load some different estimators
-    clf = LogisticRegressionCV(cv=5, random_state=seed, solver='saga')
+        pipe = utils.unpickle_gzip("pipeline.pickle.gz")
+    else:
+        print()
+        print("Training...")
+        print()
 
-    pipe = make_pipeline(tf_v, clf)
-    pipe.fit(x_train, y_train)
+        # Instantiate TfidVectrorizer to translate text data to feature vectors
+        # such that they can be used as inputs for an estimator
+        tf_v = TfidfVectorizer(strip_accents='unicode')
+
+        # With the vectorizer trained, let's load some different estimators
+        clf = LogisticRegressionCV(
+            cv=5,
+            solver='saga',
+            random_state=seed,
+        )
+
+        pipe = make_pipeline(tf_v, clf)
+
+        pipe.fit(x_train, y_train)
+
+    print()
+    print("Predicting...")
+    print()
 
     predictions = pipe.predict(x_test)
     utils.print_evaluation(y_test, predictions)
+
+    if len(sys.argv) <= 1:
+        print()
+        print("Pickling...")
+        print()
+
+        utils.pickle_gzip(pipe, "pipeline.pickle.gz")
 
     # CANNOT RUN DUE TO MEMORY
     # rfc = RandomForestClassifier(
