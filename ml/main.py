@@ -77,15 +77,25 @@ def main():
     # utils.print_evaluation(y_test, predictions)
 
     print("\n\nPlotting frequency of word use . . .")
+    plot_split_word_freqs(
+        combined_data,
+        tf_v.build_preprocessor(),
+        tf_v.build_tokenizer()
+    )
 
-    clickbait_headlines = \
-        combined_data[combined_data["is_clickbait"]]["headline"]
-    non_clickbait_headlines = \
-        combined_data[~combined_data["is_clickbait"]]["headline"]
+
+def plot_split_word_freqs(data, preproc, tokenize):
+    """Make word frequency plots for clickbait and non-clickbait headlines."""
+    clickbait_headlines = data[data["is_clickbait"]]["headline"]
+    non_clickbait_headlines = data[~data["is_clickbait"]]["headline"]
 
     utils.plot_freq(clickbait_headlines,
+                    preproc,
+                    tokenize,
                     title="Words By Use In Clickbait Headlines")
     utils.plot_freq(non_clickbait_headlines,
+                    preproc,
+                    tokenize,
                     title="Words By Use In Non-Clickbait titles")
 
     plt.show()

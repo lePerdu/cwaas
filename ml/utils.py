@@ -25,7 +25,7 @@ def print_evaluation(y_true, y_pred):
     print(classification_report(y_true, y_pred))
 
 
-def word_counts(headlines, n=None):
+def word_counts(headlines, preproc, tokenize, n=None):
     """Makes a DataFrame with the most common words.
     Arguments:
     headlines - Headlines to look.
@@ -34,14 +34,14 @@ def word_counts(headlines, n=None):
     Returns:
     A DataFrame with the columns "word" and "count".
     """
-    counter = Counter(word.strip().lower() for hl in headlines for word in hl.split())
+    counter = Counter(word for hl in headlines for word in tokenize(preproc(hl)) )
     return pd.DataFrame(counter.most_common(n), columns=("word", "count"))
 
 
-def plot_freq(headlines, n=40, title="Word Frequency"):
+def plot_freq(headlines, preproc, tokenize, n=40, title="Word Frequency"):
     """Plots the frequency of the n words."""
 
-    counts = word_counts(headlines, n)
+    counts = word_counts(headlines, preproc, tokenize, n)
 
     plt.figure(figsize=(20, 8))
     plt.title(title)
