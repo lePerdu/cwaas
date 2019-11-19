@@ -1,6 +1,7 @@
 const path = require('path')
 
 const HTMLWebpackPlugin = require('html-webpack-plugin')
+const ScriptExrHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
 
 const DIST = path.join(__dirname, 'dist')
 const EXCLUDES = [/elm-stuff/, /node_modules/]
@@ -14,7 +15,10 @@ module.exports = {
         plugins: [
             new HTMLWebpackPlugin({
                 template: 'src/index.html',
-                inject: 'body',
+                inject: 'head',
+            }),
+            new ScriptExrHtmlWebpackPlugin({
+                defaultAttribute: 'defer',
             }),
         ],
         resolve: {
