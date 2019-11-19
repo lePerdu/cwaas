@@ -6,10 +6,25 @@ $family-sans-serif: "Oswald", sans-serif;
 $family-secondary: "Abril Fatface", serif;
 $family-logo: "UnifrakturMaguntia", cursive;
 $newspaper-white: #fbfbf8;
+$newspaper-text: #040407;
 $scheme-main: $newspaper-white;
 $background: $newspaper-white;
-$text: #040407;
+$body-color: $newspaper-text;
+$body-font-size: 1.2em;
 $box-radius: 0;
+
+@import "../node_modules/bulma/sass/utilities/_all.sass";
+@import "../node_modules/bulma/sass/base/_all.sass";
+@import "../node_modules/bulma/sass/form/_all.sass";
+@import "../node_modules/bulma/sass/elements/box.sass";
+@import "../node_modules/bulma/sass/elements/button.sass";
+@import "../node_modules/bulma/sass/elements/container.sass";
+@import "../node_modules/bulma/sass/elements/notification.sass";
+@import "../node_modules/bulma/sass/elements/other.sass";
+@import "../node_modules/bulma/sass/elements/title.sass";
+@import "../node_modules/bulma/sass/layout/hero.sass";
+@import "../node_modules/bulma/sass/layout/section.sass";
+@import "../node_modules/bulma/sass/components/navbar.sass";
 
 #background-image {
     position: fixed;
@@ -39,7 +54,7 @@ $box-radius: 0;
     font-size: 1.5em;
 }
 
-.font-secondary {
+.title, .nav-link {
     font-family: $family-secondary;
 }
 
@@ -47,11 +62,19 @@ $box-radius: 0;
     padding: 0.5em 0;
 }
 
-@import "../node_modules/bulma/sass/utilities/_all.sass";
-@import "../node_modules/bulma/sass/base/_all.sass";
-@import "../node_modules/bulma/sass/form/_all.sass";
-@import "../node_modules/bulma/sass/elements/box.sass";
-@import "../node_modules/bulma/sass/elements/container.sass";
-@import "../node_modules/bulma/sass/layout/hero.sass";
-@import "../node_modules/bulma/sass/layout/section.sass";
-@import "../node_modules/bulma/sass/components/navbar.sass";
+.headline-form {
+    margin: 0.5em 0;
+
+    .headline-input {
+        // For some reason it doesn't fill space by default
+        flex: 1;
+    }
+}
+
+.clickbait-text {
+    color: $danger;
+}
+
+.legitimate-text {
+    color: $success;
+}

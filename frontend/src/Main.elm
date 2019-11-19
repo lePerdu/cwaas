@@ -5,30 +5,44 @@ import Html
     exposing
         ( Html
         , a
+        , button
         , div
-        , input
         , form
+        , h3
+        , i
+        , input
         , nav
         , p
         , section
         , span
-        , strong
         , text
         )
-import Html.Attributes as Attr
+import Html.Attributes
     exposing
         ( attribute
         , class
         , classList
+        , disabled
         , href
         , id
         , placeholder
+        , title
         , type_
         , value
         )
-import Html.Events as Events exposing (onClick, onInput, onSubmit)
+import Html.Events exposing (onClick, onInput, onSubmit)
+import Http
+import Json.Decode as Decode
+import Round
+import Url.Builder
 
 
+apiOrigin : String
+apiOrigin =
+    "https://clickworthiness.herokuapp.com"
+
+
+main : Program () Model Msg
 main =
     Browser.document
         { init = init
@@ -40,7 +54,23 @@ main =
 
 type alias Model =
     { navbarOpen : Bool
-    , headlineQuery : String
+    , headlineInput : String
+    , headlineQuery : QueryStatus ClassifyReport
+    , showErrors : Bool
+    }
+
+
+type QueryStatus a
+    = NoQuery
+    | QueryLoading
+    | QueryError Http.Error
+    | QueryResponse a
+
+
+type alias ClassifyReport =
+    { headline : String
+    , isClickbait : Bool
+    , probability : Float
     }
 
 
@@ -52,7 +82,9 @@ init _ =
 initModel : Model
 initModel =
     { navbarOpen = False
-    , headlineQuery = ""
+    , headlineInput = ""
+    , headlineQuery = NoQuery
+    , showErrors = True
     }
 
 
@@ -60,6 +92,8 @@ type Msg
     = ToggleSidebar
     | SetHeadlineQuery String
     | SubmitHeadline
+    | TestHeadlineResponse (Result Http.Error ClassifyReport)
+    | CloseErrorNotification
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -69,14 +103,66 @@ update msg model =
             ( { model | navbarOpen = not model.navbarOpen }, Cmd.none )
 
         SetHeadlineQuery new ->
-            ( { model | headlineQuery = new }, Cmd.none )
+            ( { model | headlineInput = new }, Cmd.none )
 
         SubmitHeadline ->
-            ( model, Cmd.none )
+            ( { model | headlineQuery = QueryLoading }
+            , Http.get
+                { url =
+                    Url.Builder.crossOrigin
+                        apiOrigin
+                        [ "testHeadline" ]
+                        [ Url.Builder.string "headline" model.headlineInput ]
+                , expect = Http.expectJson TestHeadlineResponse testHeadlineDecoder
+                }
+            )
+
+        TestHeadlineResponse res ->
+            ( { model | headlineQuery = queryStatus res, showErrors = True }, Cmd.none )
+
+        CloseErrorNotification ->
+            ( { model | showErrors = False }, Cmd.none )
+
+
+queryStatus : Result Http.Error a -> QueryStatus a
+queryStatus resp =
+    case resp of
+        Err err ->
+            QueryError err
+
+        Ok a ->
+            QueryResponse a
+
+
+queryLoading : QueryStatus a -> Bool
+queryLoading status =
+    case status of
+        QueryLoading ->
+            True
+
+        _ ->
+            False
+
+
+testHeadlineDecoder : Decode.Decoder ClassifyReport
+testHeadlineDecoder =
+    Decode.field
+        "data"
+        (Decode.map3
+            (\headline clickbait prob ->
+                { headline = headline
+                , isClickbait = clickbait
+                , probability = prob
+                }
+            )
+            (Decode.field "headline" Decode.string)
+            (Decode.field "clickbait" Decode.bool)
+            (Decode.field "probability" Decode.float)
+        )
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
+subscriptions _ =
     Sub.none
 
 
@@ -165,7 +251,7 @@ viewNavbarMenu open =
 
 viewNavbarItem : ( String, String ) -> Html Msg
 viewNavbarItem ( name, url ) =
-    a [ class "navbar-item font-secondary is-size-5", href url ] [ text name ]
+    a [ class "navbar-item nav-link is-size-5", href url ] [ text name ]
 
 
 viewContent : Model -> Html Msg
@@ -184,25 +270,133 @@ viewContent model =
 
 viewMainSegment : Model -> Html Msg
 viewMainSegment model =
+    let
+        inputEmpty =
+            model.headlineInput == ""
+    in
     viewSegment "" "To Click or not to Click?" <|
         div
             []
             [ text """
-            Use Machine Learning to see if a headline is for a real news
-            article or just "clickbait".
-        """
+                Use Machine Learning to see if a headline is for a real news
+                article or just "clickbait".
+            """
             , form
-                [ onSubmit SubmitHeadline ]
-                [ input
-                    [ class "input"
-                    , type_ "text"
-                    , placeholder "Test a headline now!"
-                    , value model.headlineQuery
-                    , onInput SetHeadlineQuery
-                    ]
-                    []
+                [ class "headline-form"
+                , onSubmit SubmitHeadline
                 ]
+                [ div
+                    [ class "field has-addons" ]
+                    [ div
+                        [ class "headline-input control" ]
+                        [ input
+                            [ class "input"
+                            , type_ "text"
+                            , placeholder "Test a headline now!"
+                            , value model.headlineInput
+                            , onInput SetHeadlineQuery
+                            ]
+                            []
+                        ]
+                    , div
+                        [ class "control" ]
+                        [ button
+                            [ type_ "submit"
+                            , disabled inputEmpty
+                            , title <|
+                                if inputEmpty then
+                                    "Enter in a headline"
+
+                                else
+                                    "Test a headline now!"
+                            , class "button is-primary"
+                            , classList
+                                [ ( "is-loading"
+                                  , queryLoading model.headlineQuery
+                                  )
+                                ]
+                            ]
+                            [ text "Go" ]
+                        ]
+                    ]
+                ]
+            , case model.headlineQuery of
+                QueryError err ->
+                    if model.showErrors then
+                        viewHttpError err
+
+                    else
+                        text ""
+
+                QueryResponse report ->
+                    viewHeadlineReport report
+
+                _ ->
+                    -- Since there is no Html.none
+                    text ""
             ]
+
+
+viewHeadlineReport : ClassifyReport -> Html msg
+viewHeadlineReport report =
+    div
+        []
+        [ p
+            []
+            [ text "This headline is probably "
+            , if report.isClickbait then
+                span
+                    [ class "clickbait-text" ]
+                    [ text "clickbait "
+                    , span
+                        [ class "icon" ]
+                        [ i [ class "fas fa-exclamation" ] [] ]
+                    ]
+
+              else
+                span
+                    [ class "legitimate-text" ]
+                    [ text "legitimate "
+                    , span [ class "icon" ] [ i [ class "fas fa-check" ] [] ]
+                    ]
+            ]
+        , p
+            []
+            [ text "Likelyhood that the headline is clickbait: "
+            , text <| Round.round 0 (report.probability * 100.0)
+            , text "%"
+            ]
+        ]
+
+
+viewHttpError : Http.Error -> Html Msg
+viewHttpError err =
+    let
+        networkErrMsg =
+            text """
+                There was an error fetching the response. This may be due to
+                a problem with your network connection or the server.
+                Check you're connection and try again later.
+            """
+
+        otherErrMsg =
+            text """
+                An unexpected error occurred. Sorry for the inconvenience.
+            """
+    in
+    div
+        [ class "notification is-danger" ]
+        [ button [ class "delete", onClick CloseErrorNotification ] []
+        , case err of
+            Http.Timeout ->
+                networkErrMsg
+
+            Http.NetworkError ->
+                networkErrMsg
+
+            _ ->
+                otherErrMsg
+        ]
 
 
 viewAboutSegment : Html Msg
@@ -258,9 +452,7 @@ viewSegment sectId title content =
 
 viewSegmentTitle : String -> Html Msg
 viewSegmentTitle title =
-    span
-        [ class "is-uppercase font-secondary is-size-3" ]
-        [ text title ]
+    h3 [ class "is-uppercase title is-3" ] [ text title ]
 
 
 viewHorizRule : Html Msg
