@@ -65,7 +65,7 @@ def main():
         print("Pickling...")
         print()
 
-        utils.pickle_gzip(pipe, "pipeline.pickle.gz")
+        utils.pickle_gzip(pipe, "models/pipeline.pickle.gz")
 
     # CANNOT RUN DUE TO MEMORY
     # rfc = RandomForestClassifier(
