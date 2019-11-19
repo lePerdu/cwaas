@@ -1,5 +1,6 @@
 """Miscellaneous helper functions."""
 
+import os
 import pickle
 import pickletools
 import gzip
@@ -49,8 +50,16 @@ def plot_freq(headlines, preproc, tokenize, n=40, title="Word Frequency"):
     plt.bar(counts["word"], counts["count"])
 
 
+def ensure_dir(filename):
+    """Create the directory of filename if it does not already exist."""
+    dir = os.path.dirname(filename)
+    if not os.path.exists(dir):
+        os.makedirs(dir)
+
+
 def pickle_gzip(obj, filename):
     p = pickletools.optimize(pickle.dumps(obj))
+    ensure_dir(filename)
     with gzip.open(filename, 'wb') as f:
         f.write(p)
 
