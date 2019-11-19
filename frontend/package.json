@@ -1,6 +1,6 @@
 {
   "name": "cwaas",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "CWaaS website",
   "scripts": {
     "build": "webpack --config webpack.prod.js",
