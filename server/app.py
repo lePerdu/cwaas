@@ -31,3 +31,37 @@ def test_headline():
             'probability': cb_prob,
         },
     }
+
+
+@app.route('/sampleHeadline', methods=('GET',))
+def sample_headline():
+    get_clickbait = request.args.get('clickbait')
+
+    data = read_all_data()
+
+    if get_clickbait is None:
+        # Select from all of the data
+        idx = np.random.randint(len(data))
+        element = data.iloc[idx]
+    else:
+        if get_clickbait == "False" or get_clickbait == "false":
+            get_clickbait = False
+        elif get_clickbait == "True" or get_clickbait == "true":
+            get_clickbait = True
+        else:
+            return {
+                'error':
+                    "Query parameter `clickbait' must be `True' or `False'",
+            }, HTTPStatus.BAD_REQUEST
+
+        # Just select from one particular set
+        idx = np.random.choice(
+            np.argwhere(data['is_clickbait'].to_numpy() == get_clickbait)[:, 0])
+        element = data.iloc[idx]
+
+    return {
+        'data': {
+            'headline': element['headline'],
+            'clickbait': bool(element['is_clickbait']),
+        },
+    }
