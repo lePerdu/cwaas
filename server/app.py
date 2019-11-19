@@ -2,11 +2,13 @@ from http import HTTPStatus
 
 import numpy as np
 from flask import Flask, request
+from flask_cors import CORS
 
 from ml.data import read_all_data
 from ml.utils import unpickle_gzip
 
 app = Flask(__name__)
+CORS(app) # Allow for all domains
 
 # Load these once
 model = unpickle_gzip("models/pipeline.pickle.gz")
