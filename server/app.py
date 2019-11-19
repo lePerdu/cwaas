@@ -8,8 +8,9 @@ from ml.utils import unpickle_gzip
 
 app = Flask(__name__)
 
-# Load this once
+# Load these once
 model = unpickle_gzip("models/pipeline.pickle.gz")
+all_data = read_all_data()
 
 
 # TODO Make this POST?
@@ -37,12 +38,10 @@ def test_headline():
 def sample_headline():
     get_clickbait = request.args.get('clickbait')
 
-    data = read_all_data()
-
     if get_clickbait is None:
         # Select from all of the data
-        idx = np.random.randint(len(data))
-        element = data.iloc[idx]
+        idx = np.random.randint(len(all_data))
+        element = all_data.iloc[idx]
     else:
         if get_clickbait == "False" or get_clickbait == "false":
             get_clickbait = False
@@ -55,9 +54,10 @@ def sample_headline():
             }, HTTPStatus.BAD_REQUEST
 
         # Just select from one particular set
-        idx = np.random.choice(
-            np.argwhere(data['is_clickbait'].to_numpy() == get_clickbait)[:, 0])
-        element = data.iloc[idx]
+        indices = np.argwhere(
+            all_data['is_clickbait'].to_numpy() == get_clickbait)[:, 0]
+        idx = np.random.choice(indices)
+        element = all_data.iloc[idx]
 
     return {
         'data': {
