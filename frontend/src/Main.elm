@@ -5,17 +5,23 @@ import Html
     exposing
         ( Html
         , a
+        , br
         , button
         , div
+        , figure
         , form
         , h3
+        , h5
         , i
+        , img
         , input
+        , li
         , nav
         , p
         , section
         , span
         , text
+        , ul
         )
 import Html.Attributes
     exposing
@@ -26,6 +32,7 @@ import Html.Attributes
         , href
         , id
         , placeholder
+        , src
         , title
         , type_
         , value
@@ -40,6 +47,16 @@ import Url.Builder
 apiOrigin : String
 apiOrigin =
     "https://clickworthiness.herokuapp.com"
+
+
+questionMarkUrl : String
+questionMarkUrl =
+    "/images/question-mark-cropped.jpg"
+
+
+paragraph : String -> Html msg
+paragraph content =
+    p [] [ text content ]
 
 
 main : Program () Model Msg
@@ -402,11 +419,32 @@ viewHttpError err =
 viewAboutSegment : Html Msg
 viewAboutSegment =
     viewSegment "about" "About" <|
-        text """
-            CWaaS (Click-Worthiness as a Service) is a tool capapble of
-            distuingishing clickbait and satire from informative headlines via
-            ensemble learning.
-        """
+        div
+            []
+            [ figure
+                [ class "image floated-img" ]
+                [ img [ src questionMarkUrl ] [] ]
+            , paragraph """
+                CWaaS (Click-Worthiness as a Service) is a tool capapble of
+                distuingishing clickbait and satire from informative headlines
+                via ensemble learning.
+            """
+            , br [] []
+            , paragraph """
+                A problem plaguing conventional journalism is the need to
+                generate profit, just as any business. This has had the adverse
+                effect of pushing editors to use eye catching, clickbait-like
+                headlines to get more clicks and advertising. While the
+                content of the articles still might be informative, it is
+                now difficult for readers to discern reputable articles from
+                those seeking to entertain their audience. Our goal is to
+                attract more attention to this issue by allowing anyone to
+                enter a headline and let our algorithm "rate" its level of
+                clickbait-ness. Because of this, we hope that visitors will
+                begin to analyze the headlines they read in their daily lives,
+                seeing how widespread this problem has become.
+            """
+            ]
 
 
 viewFAQSegment : Html Msg
@@ -415,10 +453,24 @@ viewFAQSegment =
         div
             []
             [ viewQuestion "Why?" """
-                Because why not?
+                Why not?
+            """
+            , viewQuestion "But really, why?" """
+                This is part of our term project for Machine Learning.
             """
             , viewQuestion "How well does it work?" """
-                Using __, we achieve an accuracy of about __%.
+                During testing, our Logistic Classifier scored a 97% accuracy
+                rate on clickbait data alone. To further extend the system,
+                we sought to train the model on sarcasm and satire data. This
+                had the effect of lowering our accuracy to 80%. By removing
+                all non-alphanumeric characters, accuracy increased to
+                83%. According to our research, classifying satire and
+                sarcasm data is a difficult task that requires sentiment
+                analysis and other approaches that allow for understanding
+                the intent of the author. Even amongst highly complex models,
+                accuracy hovers around 88%. Discerning intent and emotion,
+                from text, is an incredibly difficult task and one that is
+                a highly attractive field of study among machine learners.
             """
             ]
 
@@ -434,7 +486,33 @@ viewQuestion question answer =
 viewCreditsSegment : Html Msg
 viewCreditsSegment =
     viewSegment "credits" "Credits" <|
-        text ""
+        div
+            [ class "columns" ]
+            [ div
+                [ class "column" ]
+                [ h5 [ class "title is-5" ] [ text "Our team" ]
+                , ul
+                    []
+                    [ li [] [ text "Raphael Henrich" ]
+                    , li [] [ text "Zach Peltzer" ]
+                    , li [] [ text "James Holland" ]
+                    ]
+                ]
+            , div
+                [ class "column" ]
+                [ h5 [ class "title is-5" ] [ text "Tools" ]
+                , ul
+                    []
+                    [ li [] [ text "Python" ]
+                    , li [] [ text "scikit-learn" ]
+                    , li [] [ text "Flask" ]
+                    , li [] [ text "Elm" ]
+                    , li [] [ text "Bulma" ]
+                    , li [] [ text "GitHub Pages" ]
+                    , li [] [ text "Heroku" ]
+                    ]
+                ]
+            ]
 
 
 viewSegment : String -> String -> Html Msg -> Html Msg
