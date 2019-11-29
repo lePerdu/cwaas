@@ -8,8 +8,9 @@ machine learning.
 
 ## Code Layout
 
-This project is hosted on Github and deployed using Github Pages and Heroku,
-web-accessible at https://clickworthiness.online.
+This project is hosted on Github at https://github.com/lePerdu/cwaas
+and deployed using Github Pages and Heroku, web-accessible at
+https://clickworthiness.online.
 
 ### Machine Learning
 
